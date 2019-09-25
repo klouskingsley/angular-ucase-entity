@@ -24,7 +24,6 @@ export class CommentUcase {
   */
   init () {
     this.newCommentSub = this.commentWsEntity.newComment$.subscribe((commentItem: CommentItem) => {
-      console.log('commentItem', commentItem)
       this.commentList.unshift(commentItem)
     })
     this.commentWsEntity.startReceiveNewComment()
