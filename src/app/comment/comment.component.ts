@@ -1,8 +1,8 @@
 import { Component, Input, OnInit, OnDestroy, NgZone } from '@angular/core';
-import { CommentUcase } from './comment.ucase'
 import {interval, merge} from 'rxjs';
 import {throttle} from 'rxjs/operators';
-import {CommentItem} from './comment.type'
+import {CommentItem} from './comment.d'
+import {CommentUcase} from './comment.ucase'
 
 
 @Component({
@@ -23,16 +23,9 @@ import {CommentItem} from './comment.type'
     <div>
       <input type="button" (click)="commentUcase.clearComment()" value="清空评论">
     </div>
-
     <div>
-      海量信息发送测试：
-      <input *ngIf="!isTesting" type="button" value="测试" (click)="startTest()">
-      <input *ngIf="isTesting" type="button" value="结束测试" (click)="stopTest()">
-    </div>
-
-    <div>
-      <h3>评论列表, 个数 {{commentList.length}}</h3>
-      <div *ngFor="let comment of commentList" style="padding: 2px;">
+      <h3>评论列表, 个数 {{commentUcase.commentList.length}}</h3>
+      <div *ngFor="let comment of commentUcase.commentList" style="padding: 2px;">
         {{comment.name}}: {{comment.content}}
         <span (click)="deleteComment(comment.id)" style="display: inline-block; background: gray; padding: 0 5px; cursor: pointer;">x</span>
       </div>
@@ -54,18 +47,11 @@ export class CommentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit () {
-    this.commentUcase.startSubNewComment()
-
-    // 2000ms渲染一次
-    this.commentUcase.commentList$
-      .pipe(throttle(val => interval(2000)))
-      .subscribe(list => {
-        this.commentList = list
-      })
+    this.commentUcase.init()
   }
 
   ngOnDestroy () {
-    this.commentUcase.stopSubNewComment()
+    this.commentUcase.destroy()
   }
 
   sendComment () {
@@ -79,15 +65,5 @@ export class CommentComponent implements OnInit, OnDestroy {
 
   deleteComment (commentId: number) {
     this.commentUcase.deleteComment(commentId)
-  }
-
-  startTest () {
-    this.isTesting = true
-    this.commentUcase.testMassiveMessage()
-  }
-
-  stopTest () {
-    this.isTesting = false
-    this.commentUcase.stopMassiveMessage()
   }
 }

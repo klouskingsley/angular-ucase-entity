@@ -5,7 +5,7 @@ import {COMMENT_DB_KEY, COMMENT_MESSAGE_TYPE} from './comment.config'
 
 
 /**
- * 模拟websocket订阅
+ * 模拟http订阅
  */
 
 @Injectable({
@@ -14,7 +14,7 @@ import {COMMENT_DB_KEY, COMMENT_MESSAGE_TYPE} from './comment.config'
 export class CommentHttpEntity {
 
   private saveDB (commentList: CommentItem[]) {
-    localStorage.setItem(COMMENT_DB_KEY, JSON.parse(commentList))
+    localStorage.setItem(COMMENT_DB_KEY, JSON.stringify(commentList))
   }
 
   private getDB (): CommentItem[] {
@@ -35,15 +35,28 @@ export class CommentHttpEntity {
     }
     commentList.unshift(comment)
     this.saveDB(commentList)
+    window.postMessage({
+      type: COMMENT_MESSAGE_TYPE,
+      data: comment
+    }, location.href)
     return Promise.resolve(id)
   }
 
   deleteComment (commentId: number): Promise<void> {
-
+    let commentList = this.getDB()
+    commentList = commentList.filter(comment => comment.id !== commentId)
+    this.saveDB(commentList)
+    return Promise.resolve()
   }
 
-  clearComment (): Promise<void> {  }
+  clearComment (): Promise<void> {
+    this.saveDB([])
+    return Promise.resolve()
+  }
 
-  getHistoryCommenetList (): Promise<CommentItem[]> {  }
+  getHistoryCommenetList (): Promise<CommentItem[]> {
+    const commentList = this.getDB()
+    return Promise.resolve(commentList)
+  }
 
 }

@@ -1,73 +1,72 @@
 import { Injectable } from '@angular/core'
-import { CommentItem } from './comment.type'
-import {ngBehaviorSubject} from '../utils/decorator'
+import { CommentItem } from './comment.d'
 import {BehaviorSubject, Subscription} from 'rxjs'
+import {CommentHttpEntity} from './comment-http.entity'
 import {CommentWsEntity} from './comment-ws.entity'
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommentUcase {
+  public commentList: CommentItem[] = []
 
-  @ngBehaviorSubject('harry')
-  userName: string
-  userName$: BehaviorSubject<string>
-
-  // 这个装饰器会生成一个对应的'commentList$'可订阅对象，可以通过这个对象来使用rxjs，进行流的控制
-  @ngBehaviorSubject([])
-  commentList: CommentItem[]
-  commentList$: BehaviorSubject<CommentItem[]>
-
-  private timer: number = 0
-  private wsSub: Subscription
+  private username: string = '谢豪伟'
+  private newCommentSub: Subscription
 
   constructor (
+    private commentHttpEntity: CommentHttpEntity,
     private commentWsEntity: CommentWsEntity
   ) {}
-  
-  startSubNewComment () {
-    this.wsSub = this.commentWsEntity.newComment$.subscribe(msg => {
-      var comment: CommentItem = JSON.parse(msg)
-      this.commentList = [comment, ...this.commentList]
+
+  /**
+   * 初始化订阅，组件初始化后调用
+   * 
+  */
+  init () {
+    this.newCommentSub = this.commentWsEntity.newComment$.subscribe((commentItem: CommentItem) => {
+      this.commentList.unshift(commentItem)
     })
+    this.commentWsEntity.startReceiveNewComment()
   }
 
-  stopSubNewComment () {
-    this.wsSub.unsubscribe()
+  /**
+   * 
+   * 取消订阅，组件卸载后调用
+  */
+  destroy () {
+    this.commentWsEntity.stopReceiveNewComment()
+    this.newCommentSub.unsubscribe()
   }
 
-  setUserName (userName: string) {
-    this.userName = userName
+  /**
+   * 发送评论
+  */
+  async sendComment (content: string) {
+    await this.commentHttpEntity.sendComment(content, this.username)
   }
 
-  sendComment (content: string) {
-    const comment: CommentItem = {
-      content,
-      name: this.userName,
-      id: Date.now() + Math.random(),
-    }
-    this.commentWsEntity.send(JSON.stringify(comment))
+  /**
+   * 
+   * 获取历史评论
+  */
+  async fetchComment () {
+    const commentList: CommentItem[] = await this.commentHttpEntity.getHistoryCommenetList()
+    this.commentList = [...this.commentList, ...commentList]
   }
 
-  deleteComment (commentId: number) {
-    this.commentList = this.commentList.filter(comment => comment.id !== commentId)
+  /**
+   * 删除评论
+  */
+  async deleteComment (commentId: number) {
+    await this.commentHttpEntity.deleteComment(commentId)
+    this.commentList = this.commentList.filter(commentItem => commentItem.id !== commentId)
   }
 
-
-  testMassiveMessage () {
-    let idx = 1
-    this.timer = setInterval(() => {
-      this.sendComment('海量信息测试' + idx)
-    }, 5)
-  }
-
-  stopMassiveMessage () {
-    clearInterval(this.timer)
-  }
-
-  clearComment () {
+  /**
+   * 清空评论
+  */
+  async clearComment () {
+    await this.commentHttpEntity.clearComment()
     this.commentList = []
   }
-
 }
