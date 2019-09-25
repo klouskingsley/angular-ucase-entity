@@ -28,7 +28,7 @@ export class CommentHttpEntity {
   sendComment (content: string, username: string): Promise<number> {
     const id = Date.now() + Math.random()
     const commentList = this.getDB()
-    const comment = {
+    const comment:CommentItem = {
       id,
       content,
       username,

@@ -12,7 +12,7 @@ import {CommentUcase} from './comment.ucase'
     <h1>app-comment</h1>
 
     <div>
-      用户名: {{commentUcase.userName}}
+      用户名: {{commentUcase.username}}
     </div>
   
     <div>
@@ -26,7 +26,7 @@ import {CommentUcase} from './comment.ucase'
     <div>
       <h3>评论列表, 个数 {{commentUcase.commentList.length}}</h3>
       <div *ngFor="let comment of commentUcase.commentList" style="padding: 2px;">
-        {{comment.name}}: {{comment.content}}
+        {{comment.username}}: {{comment.content}}
         <span (click)="deleteComment(comment.id)" style="display: inline-block; background: gray; padding: 0 5px; cursor: pointer;">x</span>
       </div>
     </div>

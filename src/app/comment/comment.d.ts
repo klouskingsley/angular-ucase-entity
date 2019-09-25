@@ -1,5 +1,5 @@
 export interface CommentItem {
   id: number;
-  name: string;
+  username: string;
   content: string;
 }
