@@ -14,7 +14,7 @@ import {COMMENT_MESSAGE_TYPE} from './comment.config'
 export class CommentWsEntity {
 
   // 提供subject对象，供usecase订阅新评论
-  public newComment$: Subject<CommentItem>
+  public newComment$: Subject<CommentItem> = new Subject()
 
   private messageHandler: EventListener
 
