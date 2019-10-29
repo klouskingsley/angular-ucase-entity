@@ -10,7 +10,7 @@ import {CommentWsEntity} from './comment-ws.entity'
 export class CommentUcase {
   public commentList: CommentItem[] = []
 
-  private username: string = '谢豪伟'
+  private username: string = 'xie'
   private newCommentSub: Subscription
 
   constructor (
